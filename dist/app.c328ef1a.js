@@ -19370,6 +19370,7 @@ var startMoveEvent = function startMoveEvent() {
       setNewIndex(direction, e.target);
       removePrevDirection();
       setDirection(row, col);
+      isGameOver();
     });
   });
 }; //  TODO
@@ -19480,13 +19481,40 @@ var setDirectionAttr = function setDirectionAttr(attr, moveMark) {
 
 var isRandomG = function isRandomG() {
   if (_.isEqual(_.flatten(__resultState), _.uniq(_.flatten(__resultState)))) {
-    __stateFlatten = _.flattenDeep(__resultState);
-    console.log("result 🔥 ", __resultState);
-    console.log("result 🕵️‍♀️ ", __stateFlatten);
+    __stateFlatten = _.flattenDeep(__resultState); // console.log("result 🔥 ", __resultState);
+    // console.log("result 🕵️‍♀️ ", __stateFlatten);
+
     createDom();
   } else {
     randomPuzzle();
   }
+};
+
+var isGameOver = function isGameOver() {
+  var whatIsGameStatus = [];
+
+  for (i = 0; i < __rowSize; i++) {
+    __resultState[i] = [];
+
+    for (j = 0; j < __columnSize; j++) {
+      var el = document.querySelector("[rowCol=\"".concat(i, "-").concat(j, "\"]"));
+      var pointer = el.getAttribute("initial");
+      whatIsGameStatus.push(pointer);
+    }
+  }
+
+  if (_.isEqual(whatIsGameStatus, __stateFlatten)) {
+    setTimeout(function () {
+      var isPlayAgain = confirm("You Made it !! 😃 . want to play again?");
+
+      if (isPlayAgain) {
+        randomPuzzle();
+      } else {
+        return null;
+      }
+    }, 300);
+  } //   console.log(whatIsGameStatus);
+
 };
 
 randomPuzzle();

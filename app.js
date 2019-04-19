@@ -100,6 +100,7 @@ const startMoveEvent = () => {
       setNewIndex(direction, e.target);
       removePrevDirection();
       setDirection(row, col);
+      isGameOver();
     })
   );
 };
@@ -214,11 +215,34 @@ const setDirectionAttr = (attr, moveMark) => {
 const isRandomG = () => {
   if (_.isEqual(_.flatten(__resultState), _.uniq(_.flatten(__resultState)))) {
     __stateFlatten = _.flattenDeep(__resultState);
-    console.log("result 🔥 ", __resultState);
-    console.log("result 🕵️‍♀️ ", __stateFlatten);
+    // console.log("result 🔥 ", __resultState);
+    // console.log("result 🕵️‍♀️ ", __stateFlatten);
     createDom();
   } else {
     randomPuzzle();
   }
+};
+
+const isGameOver = () => {
+  let whatIsGameStatus = [];
+  for (i = 0; i < __rowSize; i++) {
+    __resultState[i] = [];
+    for (j = 0; j < __columnSize; j++) {
+      let el = document.querySelector(`[rowCol="${i}-${j}"]`);
+      let pointer = el.getAttribute("initial");
+      whatIsGameStatus.push(pointer);
+    }
+  }
+  if (_.isEqual(whatIsGameStatus, __stateFlatten)) {
+    setTimeout(() => {
+      let isPlayAgain = confirm("You Made it !! 😃 . want to play again?");
+      if (isPlayAgain) {
+        randomPuzzle();
+      } else {
+        return null;
+      }
+    }, 300);
+  }
+  //   console.log(whatIsGameStatus);
 };
 randomPuzzle();
