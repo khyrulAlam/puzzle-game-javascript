@@ -12,13 +12,13 @@ body {
     width: 120px;
     text-align: center;
     font-size: 20px;
-    background: gainsboro;
     height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: absolute;
     transition: 0.3s all;
+    color: #fff;
   }
   .plz:nth-child(1) {
     top: 0;

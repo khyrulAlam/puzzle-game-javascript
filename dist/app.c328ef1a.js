@@ -19271,38 +19271,54 @@ var define;
 },{"buffer":"node_modules/buffer/index.js"}],"app.js":[function(require,module,exports) {
 var _ = require("lodash");
 
+var __puzzle = document.querySelector(".puzzle");
+
 var possLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 var __resultState = [];
 var __stateFlatten = [];
+var __rowSize = 3;
+var __columnSize = 3; // create puzzle array
 
-var __puzzle = document.querySelector(".puzzle");
-
-function randomPuzzle() {
-  for (i = 0; i < 3; i++) {
+var randomPuzzle = function randomPuzzle() {
+  for (i = 0; i < __rowSize; i++) {
     __resultState[i] = [];
 
-    for (j = 0; j < 3; j++) {
+    for (j = 0; j < __columnSize; j++) {
       __resultState[i][j] = possLetter.charAt(Math.floor(Math.random() * 36));
     }
   }
 
   isRandomG();
-}
+}; //algorithm  👨‍💻
 
-function isRandomG() {
-  if (_.isEqual(_.flatten(__resultState), _.uniq(_.flatten(__resultState)))) {
-    __stateFlatten = _.flattenDeep(__resultState);
-    console.log("result 🔥 ", __resultState);
-    console.log("result 🕵️‍♀️ ", __stateFlatten);
-    createDom();
-  } else {
-    randomPuzzle();
-  }
-}
 
-randomPuzzle();
+findPointer = function findPointer(r, c) {
+  var result = {
+    left: {},
+    right: {},
+    top: {},
+    bottom: {}
+  }; // 🚣
 
-function createDom() {
+  r + 1 <= __rowSize - 1 ? result.bottom = r + 1 + "-" + c : result.bottom = null;
+  r - 1 >= 0 ? result.top = r - 1 + "-" + c : result.top = null; //  🗃
+
+  c + 1 <= __columnSize - 1 ? result.right = r + "-" + (c + 1) : result.right = null;
+  c - 1 >= 0 ? result.left = r + "-" + (c - 1) : result.left = null;
+  return result;
+}; // bg color 🖌
+
+
+var randomBgColor = function randomBgColor() {
+  var x = Math.floor(Math.random() * 256);
+  var y = Math.floor(Math.random() * 256);
+  var z = Math.floor(Math.random() * 256);
+  var bgColor = "rgb(" + x + "," + y + "," + z + ")";
+  return bgColor;
+}; // create dom element box
+
+
+var createDom = function createDom() {
   var __count = 1;
 
   var shuffleResult = _.shuffle(__stateFlatten);
@@ -19312,9 +19328,10 @@ function createDom() {
       var state = shuffleResult[__count - 1];
       var element = document.createElement("div");
       element.classList.add("plz");
+      element.style.backgroundColor = randomBgColor();
       element.setAttribute("rowCol", rowKey + "-" + colKey);
       element.setAttribute("initial", state);
-      element.innerHTML = _.indexOf(__stateFlatten, state) + 1;
+      element.innerHTML = _.indexOf(__stateFlatten, state) + 1 + " 🐉";
 
       __puzzle.appendChild(element);
 
@@ -19325,8 +19342,154 @@ function createDom() {
   __plz = document.querySelectorAll(".plz");
   var whereIsPointer = document.querySelector("[initial=\"".concat(_.last(__stateFlatten), "\"]"));
   whereIsPointer.classList.add("pointer");
+  whereIsPointer.style.backgroundColor = "transparent";
   whereIsPointer.innerHTML = "";
-}
+  startPuzzling();
+};
+
+var startPuzzling = function startPuzzling() {
+  __pointer = document.querySelector(".pointer");
+
+  var attr = __pointer.getAttribute("rowCol");
+
+  var row = Number(attr.split("-")[0]);
+  var col = Number(attr.split("-")[1]);
+  setDirection(row, col);
+  startMoveEvent();
+};
+
+var startMoveEvent = function startMoveEvent() {
+  __plz.forEach(function (_which) {
+    return _which.addEventListener("click", function (e) {
+      var direction = e.target.getAttribute("moveDirection");
+      var attr = e.target.getAttribute("rowCol");
+      var row = Number(attr.split("-")[0]);
+      var col = Number(attr.split("-")[1]);
+      if (!direction) return null;
+      moveTo(direction, e.target);
+      setNewIndex(direction, e.target);
+      removePrevDirection();
+      setDirection(row, col);
+    });
+  });
+}; //  TODO
+// 👉 if margin or padding then is function calculate not working
+//  👉 need boundary calculate properly
+// 🐍
+
+
+var moveTo = function moveTo(where, who) {
+  var el = who;
+
+  switch (where) {
+    case "left":
+      el.style.left = el.getBoundingClientRect().left + el.getBoundingClientRect().width + "px";
+      __pointer.style.left = __pointer.getBoundingClientRect().left - __pointer.getBoundingClientRect().width + "px";
+      break;
+
+    case "right":
+      el.style.left = el.getBoundingClientRect().left - el.getBoundingClientRect().width + "px";
+      __pointer.style.left = __pointer.getBoundingClientRect().left + __pointer.getBoundingClientRect().width + "px";
+      break;
+
+    case "top":
+      el.style.top = el.getBoundingClientRect().top + el.getBoundingClientRect().height + "px";
+      __pointer.style.top = __pointer.getBoundingClientRect().top - __pointer.getBoundingClientRect().height + "px";
+      break;
+
+    case "bottom":
+      el.style.top = el.getBoundingClientRect().top - el.getBoundingClientRect().height + "px";
+      __pointer.style.top = __pointer.getBoundingClientRect().top + __pointer.getBoundingClientRect().height + "px";
+      break;
+  }
+};
+
+var setNewIndex = function setNewIndex(where, who) {
+  var el = who;
+  var attr = el.getAttribute("rowCol");
+  var moveRow = Number(attr.split("-")[0]);
+  var moveCol = Number(attr.split("-")[1]);
+
+  var PointerAttr = __pointer.getAttribute("rowCol");
+
+  var pointerRow = Number(PointerAttr.split("-")[0]);
+  var pointerCol = Number(PointerAttr.split("-")[1]);
+
+  switch (where) {
+    case "left":
+      el.setAttribute("rowCol", moveRow + "-" + (moveCol + 1));
+
+      __pointer.setAttribute("rowCol", pointerRow + "-" + (pointerCol - 1));
+
+      break;
+
+    case "right":
+      el.setAttribute("rowCol", moveRow + "-" + (moveCol - 1));
+
+      __pointer.setAttribute("rowCol", pointerRow + "-" + (pointerCol + 1));
+
+      break;
+
+    case "top":
+      el.setAttribute("rowCol", moveRow + 1 + "-" + moveCol);
+
+      __pointer.setAttribute("rowCol", pointerRow - 1 + "-" + pointerCol);
+
+      break;
+
+    case "bottom":
+      el.setAttribute("rowCol", moveRow - 1 + "-" + moveCol);
+
+      __pointer.setAttribute("rowCol", pointerRow + 1 + "-" + pointerCol);
+
+      break;
+  }
+};
+
+var removePrevDirection = function removePrevDirection() {
+  __plz.forEach(function (_which) {
+    return _which.removeAttribute("moveDirection");
+  });
+};
+
+var setDirection = function setDirection(row, col) {
+  var dObj = findPointer(row, col); //   console.log(dObj);
+
+  if (dObj.left) {
+    setDirectionAttr(dObj.left, "left");
+  }
+
+  if (dObj.right) {
+    setDirectionAttr(dObj.right, "right");
+  }
+
+  if (dObj.top) {
+    setDirectionAttr(dObj.top, "top");
+  }
+
+  if (dObj.bottom) {
+    setDirectionAttr(dObj.bottom, "bottom");
+  }
+};
+
+var setDirectionAttr = function setDirectionAttr(attr, moveMark) {
+  var el = document.querySelector("[rowCol=\"".concat(attr, "\"]"));
+  el.setAttribute("moveDirection", moveMark);
+}; // check is random array has duplicate key
+
+
+var isRandomG = function isRandomG() {
+  if (_.isEqual(_.flatten(__resultState), _.uniq(_.flatten(__resultState)))) {
+    __stateFlatten = _.flattenDeep(__resultState);
+    console.log("result 🔥 ", __resultState);
+    console.log("result 🕵️‍♀️ ", __stateFlatten);
+    createDom();
+  } else {
+    randomPuzzle();
+  }
+};
+
+randomPuzzle();
 },{"lodash":"node_modules/lodash/lodash.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
