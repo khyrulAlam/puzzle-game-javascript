@@ -9,7 +9,7 @@
     "parcel-bundler": "^1.12.3"
   },
   "scripts": {
-    "dev": "parcel index.html",
+    "run": "parcel index.html",
     "build": "parcel build index.html"
   },
   "dependencies": {
