@@ -4,11 +4,13 @@ let __puzzle = document.querySelector(".puzzle");
 const possLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 let __resultState = [];
 let __stateFlatten = [];
-let __rowSize = 3;
-let __columnSize = 3;
+let __rowSize = 0;
+let __columnSize = 0;
 
 // create puzzle array
 const randomPuzzle = () => {
+  __resultState = [];
+  __stateFlatten = [];
   for (i = 0; i < __rowSize; i++) {
     __resultState[i] = [];
     for (j = 0; j < __columnSize; j++) {
@@ -55,12 +57,18 @@ const randomBgColor = () => {
 const createDom = () => {
   let __count = 1;
   let shuffleResult = _.shuffle(__stateFlatten);
+
+  __puzzle.style.width = 120 * __columnSize + "px";
+  __puzzle.style.height = 100 * __rowSize + "px";
+
   _.forEach(__resultState, (arrRow, rowKey) => {
     _.forEach(arrRow, (arrCol, colKey) => {
       let state = shuffleResult[__count - 1];
       let element = document.createElement("div");
       element.classList.add("plz");
       element.style.backgroundColor = randomBgColor();
+      element.style.top = 100 * rowKey + "px";
+      element.style.left = 120 * colKey + "px";
       element.setAttribute("rowCol", rowKey + "-" + colKey);
       element.setAttribute("initial", state);
       element.innerHTML = _.indexOf(__stateFlatten, state) + 1 + " 🐉";
@@ -115,41 +123,49 @@ const moveTo = (where, who) => {
     case "left":
       el.style.left =
         el.getBoundingClientRect().left +
-        el.getBoundingClientRect().width +
+        el.getBoundingClientRect().width -
+        __puzzle.getBoundingClientRect().left +
         "px";
       __pointer.style.left =
         __pointer.getBoundingClientRect().left -
-        __pointer.getBoundingClientRect().width +
+        __pointer.getBoundingClientRect().width -
+        __puzzle.getBoundingClientRect().left +
         "px";
       break;
     case "right":
       el.style.left =
         el.getBoundingClientRect().left -
-        el.getBoundingClientRect().width +
+        el.getBoundingClientRect().width -
+        __puzzle.getBoundingClientRect().left +
         "px";
       __pointer.style.left =
         __pointer.getBoundingClientRect().left +
-        __pointer.getBoundingClientRect().width +
+        __pointer.getBoundingClientRect().width -
+        __puzzle.getBoundingClientRect().left +
         "px";
       break;
     case "top":
       el.style.top =
         el.getBoundingClientRect().top +
-        el.getBoundingClientRect().height +
+        el.getBoundingClientRect().height -
+        __puzzle.getBoundingClientRect().top +
         "px";
       __pointer.style.top =
         __pointer.getBoundingClientRect().top -
-        __pointer.getBoundingClientRect().height +
+        __pointer.getBoundingClientRect().height -
+        __puzzle.getBoundingClientRect().top +
         "px";
       break;
     case "bottom":
       el.style.top =
         el.getBoundingClientRect().top -
-        el.getBoundingClientRect().height +
+        el.getBoundingClientRect().height -
+        __puzzle.getBoundingClientRect().top +
         "px";
       __pointer.style.top =
         __pointer.getBoundingClientRect().top +
-        __pointer.getBoundingClientRect().height +
+        __pointer.getBoundingClientRect().height -
+        __puzzle.getBoundingClientRect().top +
         "px";
       break;
   }
@@ -215,14 +231,15 @@ const setDirectionAttr = (attr, moveMark) => {
 const isRandomG = () => {
   if (_.isEqual(_.flatten(__resultState), _.uniq(_.flatten(__resultState)))) {
     __stateFlatten = _.flattenDeep(__resultState);
-    // console.log("result 🔥 ", __resultState);
-    // console.log("result 🕵️‍♀️ ", __stateFlatten);
+    console.log("🔥 ", __resultState);
+    console.log("🕵️‍♀️ ", __stateFlatten);
     createDom();
   } else {
     randomPuzzle();
   }
 };
 
+//  🎣
 const isGameOver = () => {
   let whatIsGameStatus = [];
   for (i = 0; i < __rowSize; i++) {
@@ -237,12 +254,45 @@ const isGameOver = () => {
     setTimeout(() => {
       let isPlayAgain = confirm("You Made it !! 😃 . want to play again?");
       if (isPlayAgain) {
+        __puzzle.innerHTML = "";
         randomPuzzle();
       } else {
         return null;
       }
     }, 300);
   }
-  //   console.log(whatIsGameStatus);
 };
-randomPuzzle();
+
+// 🎲
+const __puzzleGame = (row, col) => {
+  __rowSize = Number(row);
+  __columnSize = Number(col);
+  __puzzle.innerHTML = "";
+  randomPuzzle();
+};
+const onLoadGameStart = () => {
+  __puzzleGame(3, 3);
+};
+onLoadGameStart();
+
+let btnALl = document.querySelectorAll(".control button");
+btnALl.forEach(btn => {
+  btn.addEventListener("click", e => {
+    btnALl.forEach(btn => btn.classList.remove("active"));
+    e.target.classList.add("active");
+    switch (e.target.innerText.toLowerCase()) {
+      case "easy":
+        __puzzleGame(3, 3);
+        break;
+      case "medium":
+        __puzzleGame(3, 4);
+        break;
+      case "hard":
+        __puzzleGame(4, 4);
+        break;
+      case "harder":
+        __puzzleGame(4, 5);
+        break;
+    }
+  });
+});

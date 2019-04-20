@@ -1,12 +1,41 @@
+@import url('https://fonts.googleapis.com/css?family=Ubuntu');
 body {
     margin: 0 auto;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Ubuntu', sans-serif;
+  }
+  .wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: row;
+    height: 100%;
+  }
+  .control{
+    width: 20%;
+    margin-left: 30px;
+  }
+  .control button{
+    width: 160px;
+    padding: 15px 30px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 3px;
+    background: #ff7f50cc;
+    color: #fff;
+    font-family: 'Ubuntu', sans-serif;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .control .active{
+    background: #4a3a3a;
   }
   .puzzle {
-    width: 360px;
-    height: 300px;
     position: relative;
     background: #fff;
-    box-shadow: 2px 2px 0px 3px;
+    box-shadow: 0px 0px 0px 6px;
   }
   .plz {
     width: 120px;
@@ -20,42 +49,7 @@ body {
     transition: 0.3s all;
     color: #fff;
   }
-  .plz:nth-child(1) {
-    top: 0;
-    left: 0;
-  }
-  .plz:nth-child(2) {
-    top: 0px;
-    left: 120px;
-  }
-  .plz:nth-child(3) {
-    top: 0px;
-    left: 240px;
-  }
-  .plz:nth-child(4) {
-    top: 100px;
-    left: 0px;
-  }
-  .plz:nth-child(5) {
-    top: 100px;
-    left: 120px;
-  }
-  .plz:nth-child(6) {
-    top: 100px;
-    left: 240px;
-  }
-  .plz:nth-child(7) {
-    top: 200px;
-    left: 0px;
-  }
-  .plz:nth-child(8) {
-    top: 200px;
-    left: 120px;
-  }
-  .plz:nth-child(9) {
-    top: 200px;
-    left: 240px;
-  }
+
   .pointer {
     background: #fff;
   }
